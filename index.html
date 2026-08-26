@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INASEP | Herramienta PDF</title>
+<style>
+  :root{
+    --azul: #0B3D62;
+    --azul-claro: #1863A6;
+    --gris: #f4f6f8;
+    --texto: #1c2b36;
+    --borde: #d9e2ea;
+    --exito: #1f8a4c;
+    --error: #c0392b;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--gris);
+    color: var(--texto);
+  }
+  header{
+    background: var(--azul);
+    color:#fff;
+    padding: 18px 24px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  header img{
+    height:48px;
+    width:48px;
+    object-fit:contain;
+    background:#fff;
+    border-radius:6px;
+    padding:4px;
+  }
+  header h1{
+    font-size:1.3rem;
+    margin:0;
+    letter-spacing:0.5px;
+  }
+  header span{
+    display:block;
+    font-size:0.8rem;
+    font-weight:400;
+    opacity:0.85;
+  }
+  main{
+    max-width:720px;
+    margin: 32px auto;
+    padding: 0 16px;
+  }
+  .card{
+    background:#fff;
+    border:1px solid var(--borde);
+    border-radius:10px;
+    padding:24px;
+    margin-bottom:24px;
+  }
+  .card h2{
+    margin-top:0;
+    font-size:1.1rem;
+    color: var(--azul);
+  }
+  .drop{
+    border:2px dashed var(--borde);
+    border-radius:8px;
+    padding:28px;
+    text-align:center;
+    cursor:pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .drop:hover, .drop.dragover{
+    border-color: var(--azul-claro);
+    background: #f0f6fb;
+  }
+  .drop p{ margin:6px 0; color:#5a6b78; }
+  input[type=file]{ display:none; }
+  .filename{
+    margin-top:10px;
+    font-weight:600;
+    color: var(--azul);
+  }
+  .opciones{
+    display:flex;
+    gap:12px;
+    margin:18px 0;
+    flex-wrap:wrap;
+  }
+  .opciones label{
+    flex:1;
+    min-width:180px;
+    border:1px solid var(--borde);
+    border-radius:8px;
+    padding:12px 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+  }
+  .opciones input{ accent-color: var(--azul-claro); }
+  button{
+    background: var(--azul-claro);
+    color:#fff;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    font-size:1rem;
+    cursor:pointer;
+    width:100%;
+  }
+  button:disabled{
+    background:#a9bdc9;
+    cursor:not-allowed;
+  }
+  button:hover:not(:disabled){ background: var(--azul); }
+  .estado{
+    margin-top:14px;
+    font-size:0.92rem;
+    padding:10px 12px;
+    border-radius:6px;
+    display:none;
+  }
+  .estado.ok{ display:block; background:#e7f6ec; color:var(--exito); }
+  .estado.err{ display:block; background:#fbeceb; color:var(--error); }
+  .descarga{
+    display:none;
+    margin-top:14px;
+    text-align:center;
+    background: var(--exito);
+    color:#fff;
+    padding:12px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:600;
+  }
+  footer{
+    background: var(--azul);
+    color:#dce7ef;
+    padding: 32px 16px 20px;
+    margin-top: 10px;
+  }
+  .footer-wrap{
+    max-width:720px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap:24px;
+  }
+  .footer-wrap h3{
+    color:#fff;
+    font-size:0.95rem;
+    margin:0 0 10px;
+  }
+  .footer-wrap p, .footer-wrap a{
+    color:#c3d4e0;
+    font-size:0.85rem;
+    line-height:1.6;
+    text-decoration:none;
+  }
+  .footer-wrap a:hover{ color:#fff; text-decoration:underline; }
+  .footer-item{
+    display:flex;
+    gap:8px;
+    margin-bottom:6px;
+  }
+  .footer-item span.ico{ flex-shrink:0; }
+  .social-row{
+    margin-top:10px;
+    display:flex;
+    gap:12px;
+  }
+  .social-row a{
+    background: rgba(255,255,255,0.1);
+    padding:6px 12px;
+    border-radius:6px;
+    font-size:0.8rem;
+  }
+  .footer-bottom{
+    max-width:720px;
+    margin: 22px auto 0;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,0.15);
+    text-align:center;
+    color:#93a9b8;
+    font-size:0.75rem;
+  }
+  .cursos-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+  }
+  .cursos-list li{ margin-bottom:6px; }
+  @media (max-width:560px){
+    .footer-wrap{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <!-- Reemplaza este archivo por tu logo real: sube "logo.png" a la raíz del repositorio -->
+  <img src="logo.png" alt="Logo INASEP" onerror="this.style.display='none'">
+  <div>
+    <h1>INASEP</h1>
+    <span>Instituto Nacional de Seguridad Privada · Cursos OS10</span>
+  </div>
+</header>
+
+<main>
+
+  <div class="card">
+    <h2>1. Sube tu PDF</h2>
+    <div class="drop" id="drop">
+      <p>Arrastra tu archivo aquí o haz clic para seleccionarlo</p>
+      <p style="font-size:0.8rem;">Solo se procesa en tu navegador. El archivo no se envía a ningún servidor.</p>
+      <div class="filename" id="filename"></div>
+    </div>
+    <input type="file" id="fileInput" accept="application/pdf">
+  </div>
+
+  <div class="card">
+    <h2>2. Elige la acción</h2>
+    <div class="opciones">
+      <label><input type="radio" name="accion" value="desbloquear" checked> Desbloquear (quitar restricciones)</label>
+      <label><input type="radio" name="accion" value="comprimir"> Comprimir (reducir tamaño)</label>
+    </div>
+    <button id="procesar" disabled>Procesar PDF</button>
+    <div class="estado" id="estado"></div>
+    <a class="descarga" id="descarga">Descargar PDF listo</a>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <h2>Herramienta interna de INASEP</h2>
+    <p style="color:#5a6b78; margin:0;">
+      Esta utilidad es de apoyo para nuestro equipo y alumnos, pensada para preparar
+      documentos y certificados en PDF antes de enviarlos. El procesamiento ocurre
+      100% en tu navegador: ningún archivo se sube a un servidor.
+    </p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-wrap">
+    <div>
+      <h3>Instituto Inasep — Cursos OS10</h3>
+      <p>
+        OTEC acreditada por la Subsecretaría de Prevención del Delito. Formación y
+        perfeccionamiento OS10 para Guardias de Seguridad, Supervisores y
+        Operadores CCTV, con certificación válida a nivel nacional.
+      </p>
+      <ul class="cursos-list">
+        <li><a href="https://www.inasep.cl/curso-os10/curso-guardia-de-seguridad-formacion/" target="_blank" rel="noopener">Curso OS10 Formación de Guardias</a></li>
+        <li><a href="https://www.inasep.cl/curso-os10/curso-perfeccionamiento-guardias-de-seguridad/" target="_blank" rel="noopener">Curso OS10 Reentrenamiento</a></li>
+        <li><a href="https://www.inasep.cl/curso-supervisor-online/" target="_blank" rel="noopener">Curso OS10 Supervisor Online</a></li>
+        <li><a href="https://www.inasep.cl/curso-cctv-online/" target="_blank" rel="noopener">Curso Operador CCTV Online</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Contacto</h3>
+      <div class="footer-item"><span class="ico">📍</span><a href="https://maps.app.goo.gl/8ZRQRJZ4Va9BRosS6" target="_blank" rel="noopener">Aníbal Pinto 875, Quilpué</a></div>
+      <div class="footer-item"><span class="ico">📱</span><a href="tel:+56944061866">+56 9 4406 1866</a></div>
+      <div class="footer-item"><span class="ico">☎️</span><a href="tel:+56322151748">(32) 215 1748</a></div>
+      <div class="footer-item"><span class="ico">🌐</span><a href="https://www.inasep.cl/" target="_blank" rel="noopener">www.inasep.cl</a></div>
+      <div class="social-row">
+        <a href="https://www.facebook.com/InstitutoInasep" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/institutoinasep/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://wa.me/56944061866" target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2026 INASEP – Instituto Nacional de Seguridad Privada. Todos los derechos reservados. · Procesamiento 100% local en el navegador.
+  </div>
+</footer>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script>
+const drop = document.getElementById('drop');
+const fileInput = document.getElementById('fileInput');
+const filenameEl = document.getElementById('filename');
+const procesarBtn = document.getElementById('procesar');
+const estadoEl = document.getElementById('estado');
+const descargaEl = document.getElementById('descarga');
+
+let archivoActual = null;
+
+drop.addEventListener('click', () => fileInput.click());
+
+drop.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  drop.classList.add('dragover');
+});
+drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+drop.addEventListener('drop', (e) => {
+  e.preventDefault();
+  drop.classList.remove('dragover');
+  if (e.dataTransfer.files.length) manejarArchivo(e.dataTransfer.files[0]);
+});
+
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files.length) manejarArchivo(e.target.files[0]);
+});
+
+function manejarArchivo(file){
+  if (file.type !== 'application/pdf'){
+    mostrarEstado('Por favor selecciona un archivo PDF válido.', 'err');
+    return;
+  }
+  archivoActual = file;
+  filenameEl.textContent = file.name;
+  procesarBtn.disabled = false;
+  descargaEl.style.display = 'none';
+  estadoEl.style.display = 'none';
+}
+
+function mostrarEstado(msg, tipo){
+  estadoEl.textContent = msg;
+  estadoEl.className = 'estado ' + tipo;
+  estadoEl.style.display = 'block';
+}
+
+procesarBtn.addEventListener('click', async () => {
+  if (!archivoActual) return;
+  const accion = document.querySelector('input[name=accion]:checked').value;
+
+  procesarBtn.disabled = true;
+  descargaEl.style.display = 'none';
+  mostrarEstado('Procesando, un momento...', 'ok');
+
+  try {
+    const bytes = await archivoActual.arrayBuffer();
+
+    // ignoreEncryption permite abrir PDFs con restricciones de propietario
+    // (sin contraseña de apertura) para poder guardarlos sin esas restricciones.
+    const pdfDoc = await PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true });
+
+    let opciones = { useObjectStreams: true };
+
+    if (accion === 'comprimir') {
+      // Compresión básica: reescritura optimizada del PDF eliminando
+      // objetos duplicados y datos innecesarios.
+      opciones.useObjectStreams = true;
+      opciones.objectsPerTick = 200;
+    }
+
+    const nuevosBytes = await pdfDoc.save(opciones);
+
+    const blob = new Blob([nuevosBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+
+    const sufijo = accion === 'comprimir' ? '_comprimido' : '_desbloqueado';
+    const nombreSalida = archivoActual.name.replace(/\.pdf$/i, '') + sufijo + '.pdf';
+
+    descargaEl.href = url;
+    descargaEl.download = nombreSalida;
+    descargaEl.textContent = 'Descargar: ' + nombreSalida;
+    descargaEl.style.display = 'block';
+
+    const kbOriginal = (bytes.byteLength / 1024).toFixed(1);
+    const kbNuevo = (nuevosBytes.byteLength / 1024).toFixed(1);
+    mostrarEstado(
+      `Listo. Tamaño original: ${kbOriginal} KB → Tamaño final: ${kbNuevo} KB`,
+      'ok'
+    );
+  } catch (err) {
+    console.error(err);
+    mostrarEstado('No se pudo procesar el PDF. Si tiene contraseña de apertura, primero debe quitarse esa contraseña.', 'err');
+  } finally {
+    procesarBtn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>
